@@ -1,5 +1,6 @@
 (() => {
       const STORAGE_KEY = 'rashody.expenses.v1';
+      const LIMITS_STORAGE_KEY = 'rashody.budgets.v1';
       const categoryIcons = { Еда: '🍽️', Транспорт: '🚗', Дом: '🏠', Другое: '✦' };
       const form = document.querySelector('#expense-form');
       const amountInput = document.querySelector('#amount');
@@ -7,6 +8,7 @@
       const dateInput = document.querySelector('#date');
       const errorMessage = document.querySelector('#form-error');
       const entries = document.querySelector('#entries');
+      const limitList = document.querySelector('#limit-list');
       const numberFormat = new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'KZT', currencyDisplay: 'narrowSymbol', maximumFractionDigits: 0 });
       const pad = value => String(value).padStart(2, '0');
       const localDateValue = (date = new Date()) => `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
@@ -21,6 +23,93 @@
       }
       let expenses = loadExpenses();
       let latestCreatedAt = expenses.reduce((latest, item) => Math.max(latest, item.createdAt), 0);
+      let limits = loadLimits();
+
+      function loadLimits() {
+        try {
+          const data = JSON.parse(localStorage.getItem(LIMITS_STORAGE_KEY) || '{}');
+          if (!data || typeof data !== 'object' || Array.isArray(data)) return {};
+          return Object.fromEntries(Object.entries(data).filter(([category, value]) =>
+            categoryIcons[category] && Number.isSafeInteger(Number(value)) && Number(value) > 0
+          ).map(([category, value]) => [category, Number(value)]));
+        } catch { return {}; }
+      }
+      function persistLimits(nextLimits) {
+        try {
+          localStorage.setItem(LIMITS_STORAGE_KEY, JSON.stringify(nextLimits));
+          return true;
+        } catch { return false; }
+      }
+      function renderLimitForms() {
+        limitList.replaceChildren();
+        Object.entries(categoryIcons).forEach(([category, icon], index) => {
+          const key = ['food', 'transport', 'home', 'other'][index];
+          const form = document.createElement('form');
+          form.className = 'limit-form';
+          form.noValidate = true;
+          const label = document.createElement('label');
+          label.className = 'limit-category';
+          label.htmlFor = `limit-${key}`;
+          label.textContent = `${icon} ${category}`;
+          const valueWrap = document.createElement('div');
+          valueWrap.className = 'limit-input-wrap';
+          const input = document.createElement('input');
+          input.id = `limit-${key}`;
+          input.name = 'limit';
+          input.type = 'number';
+          input.min = '1';
+          input.step = '1';
+          input.inputMode = 'numeric';
+          input.placeholder = 'Сумма';
+          input.required = true;
+          input.setAttribute('aria-describedby', `limit-error-${key} limit-status-${key}`);
+          if (limits[category] !== undefined) input.value = String(limits[category]);
+          const currency = document.createElement('span');
+          currency.className = 'limit-currency';
+          currency.setAttribute('aria-hidden', 'true');
+          currency.textContent = '₸';
+          valueWrap.append(input, currency);
+          const error = document.createElement('p');
+          error.id = `limit-error-${key}`;
+          error.className = 'limit-message limit-error';
+          error.setAttribute('role', 'alert');
+          error.hidden = true;
+          const status = document.createElement('p');
+          status.id = `limit-status-${key}`;
+          status.className = 'limit-message limit-status';
+          status.setAttribute('role', 'status');
+          status.textContent = 'Лимит сохранён';
+          status.hidden = true;
+          const button = document.createElement('button');
+          button.className = 'limit-save';
+          button.type = 'submit';
+          button.textContent = 'Сохранить';
+          form.append(label, valueWrap, button, error, status);
+          form.addEventListener('input', () => { error.hidden = true; status.hidden = true; });
+          form.addEventListener('submit', event => {
+            event.preventDefault();
+            error.hidden = true;
+            status.hidden = true;
+            const amount = Number(input.value);
+            if (input.value === '' || !Number.isSafeInteger(amount) || amount <= 0) {
+              error.textContent = 'Введите целый лимит больше нуля.';
+              error.hidden = false;
+              input.focus();
+              return;
+            }
+            const nextLimits = { ...limits, [category]: amount };
+            if (!persistLimits(nextLimits)) {
+              error.textContent = 'Не удалось сохранить лимит в браузере. Повторите попытку.';
+              error.hidden = false;
+              input.focus();
+              return;
+            }
+            limits = nextLimits;
+            status.hidden = false;
+          });
+          limitList.append(form);
+        });
+      }
 
       function persistExpenses() {
         try {
@@ -143,5 +232,6 @@
         amountInput.focus();
       });
 
+      renderLimitForms();
       render();
     })();

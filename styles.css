@@ -50,6 +50,9 @@
     .limit-message { grid-column: 1 / -1; margin: -5px 0 2px; font-size: 11px; }
     .limit-error { color: #a43e31; }
     .limit-status { color: var(--green); }
+    .limit-summary { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 8px; padding: 9px 10px; border-radius: 9px; background: #f7f9f6; }
+    .limit-stat { min-width: 0; display: flex; flex-direction: column; gap: 3px; color: #858b82; font-size: 10px; }
+    .limit-stat strong { color: #384238; font-size: 12px; font-weight: 650; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
     form { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
     .field { min-width: 0; }
     label { display: block; margin-bottom: 7px; color: #4d554c; font-size: 12px; font-weight: 650; }
@@ -99,6 +102,7 @@
       .limit-save { padding: 0 10px; }
       .limit-category { gap: 6px; font-size: 12px; }
       .limit-message { grid-column: 1 / -1; }
+      .limit-summary { gap: 6px; padding: 9px; }
       .form-footer, .form-error { grid-column: auto; }
       .form-footer { align-items: flex-end; }
       .required-note { max-width: 125px; line-height: 1.4; }

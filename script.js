@@ -62,6 +62,7 @@
           input.inputMode = 'numeric';
           input.placeholder = 'Сумма';
           input.required = true;
+          input.setAttribute('aria-label', `Месячный лимит: ${category}`);
           input.setAttribute('aria-describedby', `limit-error-${key} limit-status-${key}`);
           if (limits[category] !== undefined) input.value = String(limits[category]);
           const currency = document.createElement('span');
@@ -84,7 +85,10 @@
           button.className = 'limit-save';
           button.type = 'submit';
           button.textContent = 'Сохранить';
-          form.append(label, valueWrap, button, error, status);
+          const summary = document.createElement('div');
+          summary.id = `limit-summary-${key}`;
+          summary.className = 'limit-summary';
+          form.append(label, valueWrap, button, error, status, summary);
           form.addEventListener('input', () => { error.hidden = true; status.hidden = true; });
           form.addEventListener('submit', event => {
             event.preventDefault();
@@ -106,8 +110,46 @@
             }
             limits = nextLimits;
             status.hidden = false;
+            renderLimitSummaries();
           });
           limitList.append(form);
+        });
+      }
+      function renderLimitSummaries() {
+        const currentMonth = localDateValue().slice(0, 7);
+        Object.keys(categoryIcons).forEach((category, index) => {
+          const key = ['food', 'transport', 'home', 'other'][index];
+          const summary = document.querySelector(`#limit-summary-${key}`);
+          if (!summary) return;
+          const spent = expenses.reduce((sum, item) =>
+            item.category === category && item.date.startsWith(`${currentMonth}-`) ? sum + Number(item.amount) : sum, 0
+          );
+          summary.replaceChildren();
+          const limitStat = document.createElement('div');
+          limitStat.className = 'limit-stat';
+          const limitLabel = document.createElement('span');
+          limitLabel.textContent = 'Лимит';
+          const limitValue = document.createElement('strong');
+          limitValue.textContent = limits[category] === undefined ? 'Не задан' : numberFormat.format(limits[category]);
+          limitStat.append(limitLabel, limitValue);
+          summary.append(limitStat);
+          const spentStat = document.createElement('div');
+          spentStat.className = 'limit-stat';
+          const spentLabel = document.createElement('span');
+          spentLabel.textContent = 'Потрачено';
+          const spentValue = document.createElement('strong');
+          spentValue.textContent = numberFormat.format(spent);
+          spentStat.append(spentLabel, spentValue);
+          summary.append(spentStat);
+          if (limits[category] === undefined) return;
+          const remainingStat = document.createElement('div');
+          remainingStat.className = 'limit-stat';
+          const remainingLabel = document.createElement('span');
+          remainingLabel.textContent = 'Осталось';
+          const remainingValue = document.createElement('strong');
+          remainingValue.textContent = numberFormat.format(limits[category] - spent);
+          remainingStat.append(remainingLabel, remainingValue);
+          summary.append(remainingStat);
         });
       }
 
@@ -146,6 +188,7 @@
         document.querySelector('#month-name').textContent = new Intl.DateTimeFormat('ru-RU', { month: 'long', year: 'numeric' }).format(now);
         const monthlyTotal = expenses.reduce((sum, item) => item.date.startsWith(`${yearMonth}-`) ? sum + Number(item.amount) : sum, 0);
         document.querySelector('#month-total').textContent = numberFormat.format(monthlyTotal);
+        renderLimitSummaries();
 
         const sorted = [...expenses].sort((a, b) => b.date.localeCompare(a.date) || b.createdAt - a.createdAt);
         document.querySelector('#entry-count').textContent = `${sorted.length} ${pluralRecords(sorted.length)}`;

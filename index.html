@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f6f2">
+  <title>Мои расходы</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <span class="brand-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M5 7.5h14M7 4.5h10M7 10.5v8A1.5 1.5 0 0 0 8.5 20h7a1.5 1.5 0 0 0 1.5-1.5v-8M10 13v4m4-4v4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        Расходы
+      </div>
+      <div class="top-caption"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.7"/><path d="M9 12h6m-3-3v6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>Ваш бюджет под контролем</div>
+    </div>
+  </header>
+  <main>
+    <section class="intro" aria-labelledby="page-title">
+      <p class="eyebrow">Личный бюджет</p>
+      <h1 id="page-title">Мои расходы</h1>
+      <p>Добавляйте траты и следите за расходами в течение месяца.</p>
+    </section>
+
+    <section class="monthly" aria-label="Расходы за текущий месяц">
+      <div class="monthly-copy">
+        <div class="monthly-label">Итого за месяц</div>
+        <div class="month-name" id="month-name"></div>
+        <div class="total" id="month-total" aria-live="polite">0</div>
+      </div>
+      <div class="monthly-symbol" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="m4 17.5 5-5.5 3.5 3L20 7m-5 0h5v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    </section>
+
+    <section class="card" aria-labelledby="form-title">
+      <div class="card-heading">
+        <h2 id="form-title">Добавить трату</h2>
+        <p>Заполните детали расхода</p>
+      </div>
+      <form id="expense-form" novalidate>
+        <div class="field">
+          <label for="amount">Сумма</label>
+          <div class="amount-field"><input id="amount" name="amount" type="number" min="1" step="1" inputmode="numeric" placeholder="0" required aria-describedby="form-error"><span class="amount-suffix" aria-hidden="true">₸</span></div>
+        </div>
+        <div class="field">
+          <label for="category">Категория</label>
+          <select id="category" name="category" required aria-describedby="form-error">
+            <option value="" selected disabled>Выберите категорию</option>
+            <option value="Еда">🍽️ &nbsp; Еда</option>
+            <option value="Транспорт">🚗 &nbsp; Транспорт</option>
+            <option value="Дом">🏠 &nbsp; Дом</option>
+            <option value="Другое">✦ &nbsp; Другое</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="date">Дата</label>
+          <input id="date" name="date" type="date" required aria-describedby="form-error">
+        </div>
+        <div class="field">
+          <label for="comment">Комментарий <span class="optional">(необязательно)</span></label>
+          <input id="comment" name="comment" type="text" maxlength="120" placeholder="Например, продукты на неделю">
+        </div>
+        <p class="form-error" id="form-error" role="alert" hidden></p>
+        <div class="form-footer">
+          <span class="required-note">* Обязательные поля</span>
+          <button class="submit" type="submit"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14m-7-7h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Добавить трату</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="history" aria-labelledby="history-title">
+      <div class="history-heading"><h2 id="history-title">История трат</h2><span class="entry-count" id="entry-count">0 записей</span></div>
+      <div class="entries" id="entries" aria-live="polite"></div>
+    </section>
+  </main>
+  <script src="script.js" defer></script>
+</body>
+</html>

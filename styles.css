@@ -111,3 +111,23 @@
       .entry-amount { font-size: 12px; }
     }
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+
+/* Быстрые шаблоны трат */
+.templates { margin-top: 22px; padding-top: 20px; border-top: 1px solid var(--line); }
+.templates-heading h3 { margin: 0; font-size: 15px; }
+.templates-heading p { margin: 5px 0 0; color: var(--muted); font-size: 12px; line-height: 1.45; }
+.template-form { display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: end; gap: 10px; margin-top: 14px; }
+.template-save, .template-select, .template-delete { min-height: 44px; border-radius: 9px; cursor: pointer; font: inherit; }
+.template-save { padding: 0 14px; border: 1px solid #dce6dc; background: #f7faf6; color: var(--green); font-size: 12px; font-weight: 650; }
+.template-save:hover, .template-select:hover { background: var(--green-soft); }
+.template-error { grid-column: 1 / -1; margin: -3px 0 0; color: #a43e31; font-size: 12px; }
+.template-empty { margin: 14px 0 0; color: #90968d; font-size: 12px; }
+.template-list { display: grid; gap: 8px; margin-top: 12px; }
+.template-item { min-width: 0; display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: center; gap: 8px; padding: 9px; border: 1px solid #eff1ed; border-radius: 11px; }
+.template-select { min-width: 0; padding: 6px 9px; border: 0; background: #fff; text-align: left; }
+.template-title { display: block; overflow: hidden; color: #343b33; font-size: 13px; font-weight: 650; text-overflow: ellipsis; white-space: nowrap; }
+.template-details { display: block; margin-top: 4px; color: #858b82; font-size: 11px; overflow-wrap: anywhere; }
+.template-delete { padding: 0 10px; border: 1px solid #eee2df; background: #fff; color: #9b493d; font-size: 12px; }
+.template-delete:hover { background: #fff7f5; }
+.template-save:focus-visible, .template-select:focus-visible, .template-delete:focus-visible { outline: 3px solid rgba(50,104,73,.25); outline-offset: 2px; }
+@media (max-width: 560px) { .template-form { grid-template-columns: 1fr; } .template-save { width: 100%; } }

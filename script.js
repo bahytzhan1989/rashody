@@ -90,7 +90,8 @@
           summary.className = 'limit-summary';
           form.append(label, valueWrap, button, error, status, summary);
           form.addEventListener('input', () => { error.hidden = true; status.hidden = true; });
-          form.addEventListener('submit', event => {
+    
+      form.addEventListener('submit', event => {
             event.preventDefault();
             error.hidden = true;
             status.hidden = true;
@@ -238,6 +239,59 @@
         control.addEventListener('input', clearError);
         control.addEventListener('change', clearError);
       }
+      const TEMPLATES_STORAGE_KEY = 'rashody.templates.v1';
+      const templateForm = document.querySelector('#template-form');
+      const templateNameInput = document.querySelector('#template-name');
+      const templateError = document.querySelector('#template-error');
+      const templateList = document.querySelector('#template-list');
+      const templateEmpty = document.querySelector('#template-empty');
+      function loadTemplates() {
+        try {
+          const data = JSON.parse(localStorage.getItem(TEMPLATES_STORAGE_KEY) || '[]');
+          if (!Array.isArray(data)) return [];
+          return data.filter(item => item && typeof item.name === 'string' && item.name.trim() && Number.isSafeInteger(Number(item.amount)) && Number(item.amount) > 0 && categoryIcons[item.category] && typeof item.comment === 'string');
+        } catch { return []; }
+      }
+      let templates = loadTemplates();
+      function persistTemplates(nextTemplates) {
+        try { localStorage.setItem(TEMPLATES_STORAGE_KEY, JSON.stringify(nextTemplates)); return true; }
+        catch { return false; }
+      }
+      function renderTemplates() {
+        templateList.replaceChildren();
+        templateEmpty.hidden = templates.length > 0;
+        templates.forEach((item, index) => {
+          const row = document.createElement('div'); row.className = 'template-item';
+          const select = document.createElement('button'); select.type = 'button'; select.className = 'template-select';
+          const title = document.createElement('span'); title.className = 'template-title'; title.textContent = item.name;
+          const details = document.createElement('span'); details.className = 'template-details';
+          details.textContent = `${numberFormat.format(Number(item.amount))} · ${item.category}${item.comment ? ` · ${item.comment}` : ''}`;
+          select.append(title, details); select.setAttribute('aria-label', `Выбрать шаблон ${item.name}: ${numberFormat.format(Number(item.amount))}, ${item.category}`);
+          select.addEventListener('click', () => { amountInput.value = String(item.amount); categoryInput.value = item.category; dateInput.value = localDateValue(); document.querySelector('#comment').value = item.comment; clearError(); amountInput.focus(); });
+          const remove = document.createElement('button'); remove.type = 'button'; remove.className = 'template-delete'; remove.textContent = 'Удалить'; remove.setAttribute('aria-label', `Удалить шаблон ${item.name}`);
+          remove.addEventListener('click', () => {
+            const nextTemplates = templates.filter((_, itemIndex) => itemIndex !== index);
+            if (!persistTemplates(nextTemplates)) { templateError.textContent = 'Не удалось удалить шаблон. Попробуйте ещё раз.'; templateError.hidden = false; return; }
+            templates = nextTemplates; templateError.hidden = true; renderTemplates();
+          });
+          row.append(select, remove); templateList.append(row);
+        });
+      }
+      templateForm.addEventListener('input', () => { templateError.hidden = true; });
+      templateForm.addEventListener('submit', event => {
+        event.preventDefault(); templateError.hidden = true; templateError.textContent = '';
+        const amount = Number(amountInput.value); const name = templateNameInput.value.trim();
+        if (amountInput.value === '' || !Number.isSafeInteger(amount) || amount <= 0) templateError.textContent = 'Введите целую сумму больше нуля.';
+        else if (!categoryIcons[categoryInput.value]) templateError.textContent = 'Выберите категорию в форме выше.';
+        else if (!name) templateError.textContent = 'Введите название шаблона.';
+        else {
+          const nextTemplates = [...templates, { name, amount, category: categoryInput.value, comment: document.querySelector('#comment').value.trim() }];
+          if (!persistTemplates(nextTemplates)) templateError.textContent = 'Не удалось сохранить шаблон в браузере. Попробуйте ещё раз.';
+          else { templates = nextTemplates; templateNameInput.value = ''; renderTemplates(); }
+        }
+        if (templateError.textContent) templateError.hidden = false;
+      });
+
       form.addEventListener('submit', event => {
         event.preventDefault();
         clearError();
@@ -276,5 +330,6 @@
       });
 
       renderLimitForms();
+      renderTemplates();
       render();
     })();

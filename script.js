@@ -7,6 +7,9 @@
       const categoryInput = document.querySelector('#category');
       const dateInput = document.querySelector('#date');
       const errorMessage = document.querySelector('#form-error');
+      const formTitle = document.querySelector('#form-title');
+      const submitLabel = document.querySelector('#expense-submit-label');
+      const cancelEditButton = document.querySelector('#cancel-edit');
       const entries = document.querySelector('#entries');
       const limitList = document.querySelector('#limit-list');
       const numberFormat = new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'KZT', currencyDisplay: 'narrowSymbol', maximumFractionDigits: 0 });
@@ -22,6 +25,7 @@
         } catch { return []; }
       }
       let expenses = loadExpenses();
+      let editingExpenseId = null;
       let latestCreatedAt = expenses.reduce((latest, item) => Math.max(latest, item.createdAt), 0);
       let limits = loadLimits();
 
@@ -221,7 +225,28 @@
           const amount = document.createElement('div');
           amount.className = 'entry-amount';
           amount.textContent = numberFormat.format(Number(item.amount));
-          row.append(icon, info, amount);
+          const side = document.createElement('div');
+          side.className = 'entry-side';
+          const editButton = document.createElement('button');
+          editButton.type = 'button';
+          editButton.className = 'entry-edit';
+          editButton.textContent = 'Изменить';
+          editButton.setAttribute('aria-label', `Изменить трату: ${numberFormat.format(Number(item.amount))}, ${item.category}, ${formatDate(item.date)}`);
+          editButton.addEventListener('click', () => {
+            editingExpenseId = item.id;
+            amountInput.value = String(item.amount);
+            categoryInput.value = item.category;
+            dateInput.value = item.date;
+            document.querySelector('#comment').value = item.comment || '';
+            formTitle.textContent = 'Изменить трату';
+            submitLabel.textContent = 'Сохранить изменения';
+            cancelEditButton.hidden = false;
+            clearError();
+            amountInput.focus();
+            form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          });
+          side.append(amount, editButton);
+          row.append(icon, info, side);
           entries.append(row);
         }
       }
@@ -235,6 +260,19 @@
         errorMessage.textContent = '';
         errorMessage.hidden = true;
       }
+      function cancelEditing() {
+        editingExpenseId = null;
+        form.reset();
+        dateInput.value = localDateValue();
+        formTitle.textContent = 'Добавить трату';
+        submitLabel.textContent = 'Добавить трату';
+        cancelEditButton.hidden = true;
+        clearError();
+      }
+      cancelEditButton.addEventListener('click', () => {
+        cancelEditing();
+        amountInput.focus();
+      });
       for (const control of [amountInput, categoryInput, dateInput]) {
         control.addEventListener('input', clearError);
         control.addEventListener('change', clearError);
@@ -308,13 +346,35 @@
           return;
         }
         const formData = new FormData(form);
-        latestCreatedAt = Math.max(Date.now(), latestCreatedAt + 1);
-        const expense = {
-          id: globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random()}`,
+        const updatedFields = {
           amount: Number(formData.get('amount')),
           category: String(formData.get('category')),
           date: String(formData.get('date')),
-          comment: String(formData.get('comment') || '').trim(),
+          comment: String(formData.get('comment') || '').trim()
+        };
+        if (editingExpenseId) {
+          const index = expenses.findIndex(item => item.id === editingExpenseId);
+          if (index < 0) {
+            cancelEditing();
+            render();
+            return;
+          }
+          const previousExpenses = expenses;
+          expenses = expenses.map(item => item.id === editingExpenseId ? { ...item, ...updatedFields } : item);
+          if (!persistExpenses()) {
+            expenses = previousExpenses;
+            showError('Не удалось сохранить изменения в браузере. Проверьте доступное место и повторите попытку.', amountInput);
+            return;
+          }
+          cancelEditing();
+          render();
+          amountInput.focus();
+          return;
+        }
+        latestCreatedAt = Math.max(Date.now(), latestCreatedAt + 1);
+        const expense = {
+          id: globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random()}`,
+          ...updatedFields,
           createdAt: latestCreatedAt
         };
         expenses.push(expense);

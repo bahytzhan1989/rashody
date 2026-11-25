@@ -65,11 +65,14 @@
     .amount-field input { padding-right: 38px; }
     .amount-suffix { position: absolute; top: 50%; right: 13px; transform: translateY(-50%); color: #9a9f98; font-size: 13px; pointer-events: none; }
     .form-footer { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-top: 1px; }
+    .form-actions { display: flex; align-items: center; gap: 8px; }
     .required-note { color: #989e96; font-size: 11px; }
     .submit { min-height: 44px; padding: 0 16px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 0; border-radius: 9px; background: var(--green); color: #fff; font-size: 12px; font-weight: 650; cursor: pointer; transition: background .15s, transform .15s; }
     .submit:hover { transform: translateY(-1px); background: #28583c; }
     .submit:focus-visible { outline: 3px solid rgba(50,104,73,.28); outline-offset: 2px; }
     .submit svg { width: 16px; height: 16px; }
+    .cancel-edit { min-height: 44px; padding: 0 14px; border: 1px solid #dce6dc; border-radius: 9px; background: #fff; color: #596257; font-size: 12px; font-weight: 650; cursor: pointer; }
+    .cancel-edit:focus-visible, .entry-edit:focus-visible { outline: 3px solid rgba(50,104,73,.25); outline-offset: 2px; }
     .form-error { grid-column: 1 / -1; margin: -6px 0 0; color: #a43e31; font-size: 12px; }
     [hidden] { display: none !important; }
     .history { margin-top: 35px; }
@@ -84,6 +87,9 @@
     .entry-comment { overflow: hidden; color: #343b33; font-size: 13px; font-weight: 650; text-overflow: ellipsis; white-space: nowrap; }
     .entry-details { margin-top: 5px; display: flex; flex-wrap: wrap; gap: 5px 8px; color: #8c9289; font-size: 11px; }
     .entry-amount { white-space: nowrap; color: #293129; font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .entry-side { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+    .entry-edit { min-height: 44px; padding: 0 10px; border: 1px solid #dce6dc; border-radius: 8px; background: #f7faf6; color: var(--green); font-size: 11px; font-weight: 650; cursor: pointer; }
+    .entry-edit:hover { background: var(--green-soft); }
     .empty { padding: 39px 18px; text-align: center; }
     .empty-icon { width: 46px; height: 46px; margin: 0 auto 12px; display: grid; place-items: center; border-radius: 15px; background: var(--green-soft); color: var(--green); }
     .empty-icon svg { width: 22px; height: 22px; }
@@ -105,10 +111,12 @@
       .limit-summary { gap: 6px; padding: 9px; }
       .form-footer, .form-error { grid-column: auto; }
       .form-footer { align-items: flex-end; }
+      .form-actions { flex-wrap: wrap; justify-content: flex-end; }
       .required-note { max-width: 125px; line-height: 1.4; }
       .entry { grid-template-columns: 38px minmax(0,1fr) auto; gap: 9px; padding: 12px 11px; }
       .category-icon { width: 38px; height: 38px; }
       .entry-amount { font-size: 12px; }
+      .entry-edit { padding: 0 8px; font-size: 10px; }
     }
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; } }
 

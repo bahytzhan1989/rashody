@@ -70,10 +70,13 @@
           <input id="comment" name="comment" type="text" maxlength="120" placeholder="Например, продукты на неделю">
         </div>
         <p class="form-error" id="form-error" role="alert" hidden></p>
-        <div class="form-footer">
+          <div class="form-footer">
           <span class="required-note">* Обязательные поля</span>
-          <button class="submit" type="submit"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14m-7-7h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Добавить трату</button>
-        </div>
+          <div class="form-actions">
+            <button class="cancel-edit" id="cancel-edit" type="button" hidden>Отмена</button>
+            <button class="submit" id="expense-submit" type="submit"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14m-7-7h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span id="expense-submit-label">Добавить трату</span></button>
+          </div>
+          </div>
       </form>
       <section class="templates" aria-labelledby="templates-title">
         <div class="templates-heading"><h3 id="templates-title">Шаблоны трат</h3><p>Сохраните повторяющуюся трату для быстрого заполнения.</p></div>

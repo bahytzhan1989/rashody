@@ -34,6 +34,19 @@
     .total { margin-top: 12px; font-size: clamp(30px, 5vw, 38px); font-weight: 720; line-height: 1; letter-spacing: -1px; font-variant-numeric: tabular-nums; }
     .monthly-symbol { display: grid; width: 46px; height: 46px; flex: 0 0 auto; place-items: center; border: 1px solid rgba(255,255,255,.23); border-radius: 14px; color: rgba(255,255,255,.92); }
     .monthly-symbol svg { width: 22px; height: 22px; }
+    .monthly-report { margin-top: 16px; }
+    .monthly-report .card-heading { margin-bottom: 16px; }
+    .report-total-row, .report-category { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .report-total-row { padding-bottom: 15px; border-bottom: 1px solid var(--line); color: #687166; font-size: 13px; }
+    .report-total-row strong, .report-category strong { color: #293129; font-size: 14px; font-variant-numeric: tabular-nums; text-align: right; }
+    .report-subtitle { margin: 16px 0 9px; font-size: 13px; }
+    .report-categories { margin: 0; padding: 0; list-style: none; }
+    .report-category { min-height: 38px; color: #4d554c; font-size: 13px; }
+    .report-empty { padding: 8px 0; color: var(--muted); font-size: 12px; }
+    .report-comparison { margin-top: 10px; padding: 13px 14px; border-radius: 11px; background: #f7f9f6; }
+    .report-comparison .report-subtitle { margin: 0 0 7px; }
+    .report-comparison p { margin: 0; color: #687166; font-size: 12px; line-height: 1.5; font-variant-numeric: tabular-nums; }
+    .report-comparison .report-change { margin-top: 3px; color: var(--green); font-weight: 650; }
     .card { margin-top: 22px; padding: 25px 27px; border: 1px solid #ecefe9; border-radius: 17px; background: var(--surface); box-shadow: 0 10px 30px rgba(39,48,38,.045); }
     .card-heading { margin-bottom: 21px; }
     h2 { margin: 0; font-size: 17px; letter-spacing: -.35px; }
@@ -53,6 +66,8 @@
     .limit-summary { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 8px; padding: 9px 10px; border-radius: 9px; background: #f7f9f6; }
     .limit-stat { min-width: 0; display: flex; flex-direction: column; gap: 3px; color: #858b82; font-size: 10px; }
     .limit-stat strong { color: #384238; font-size: 12px; font-weight: 650; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+    .limit-stat strong.limit-overrun-value { color: #a43e31; }
+    .limit-overrun { grid-column: 1 / -1; margin: 0; color: #a43e31; font-size: 11px; font-weight: 650; }
     form { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
     .field { min-width: 0; }
     label { display: block; margin-bottom: 7px; color: #4d554c; font-size: 12px; font-weight: 650; }

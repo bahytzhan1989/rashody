@@ -152,9 +152,18 @@
           const remainingLabel = document.createElement('span');
           remainingLabel.textContent = 'Осталось';
           const remainingValue = document.createElement('strong');
-          remainingValue.textContent = numberFormat.format(limits[category] - spent);
+          const remaining = limits[category] - spent;
+          remainingValue.textContent = numberFormat.format(remaining);
+          if (remaining < 0) remainingValue.classList.add('limit-overrun-value');
           remainingStat.append(remainingLabel, remainingValue);
           summary.append(remainingStat);
+          if (remaining < 0) {
+            const warning = document.createElement('p');
+            warning.className = 'limit-overrun';
+            warning.setAttribute('role', 'status');
+            warning.textContent = `Превышение: ${numberFormat.format(Math.abs(remaining))}`;
+            summary.append(warning);
+          }
         });
       }
 
@@ -187,12 +196,66 @@
         empty.innerHTML = '<div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 7.5h14M7 4.5h10M7 10.5v8A1.5 1.5 0 0 0 8.5 20h7a1.5 1.5 0 0 0 1.5-1.5v-8M10 13v4m4-4v4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="empty-title">Пока нет трат</div><div class="empty-hint">Добавьте первую запись — она появится здесь</div>';
         entries.append(empty);
       }
+      function renderMonthlyReport(now) {
+        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+        const previousMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        const monthEnd = localDateValue(now);
+        const previousMonth = `${previousMonthStart.getFullYear()}-${pad(previousMonthStart.getMonth() + 1)}`;
+        const currentExpenses = expenses.filter(item => item.date >= localDateValue(monthStart) && item.date <= monthEnd);
+        const previousExpenses = expenses.filter(item => item.date.startsWith(`${previousMonth}-`));
+        const currentTotal = currentExpenses.reduce((sum, item) => sum + Number(item.amount), 0);
+        const previousTotal = previousExpenses.reduce((sum, item) => sum + Number(item.amount), 0);
+        const categoryTotals = Object.fromEntries(Object.keys(categoryIcons).map(category => [category, 0]));
+        currentExpenses.forEach(item => { categoryTotals[item.category] += Number(item.amount); });
+        const topCategories = Object.entries(categoryTotals)
+          .filter(([, total]) => total > 0)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 3);
+
+        document.querySelector('#report-month').textContent = new Intl.DateTimeFormat('ru-RU', { month: 'long', year: 'numeric' }).format(now);
+        document.querySelector('#report-total').textContent = numberFormat.format(currentTotal);
+        const categoryList = document.querySelector('#report-categories');
+        categoryList.replaceChildren();
+        if (topCategories.length === 0) {
+          const empty = document.createElement('li');
+          empty.className = 'report-empty';
+          empty.textContent = 'Пока нет трат за этот месяц';
+          categoryList.append(empty);
+        } else {
+          topCategories.forEach(([category, total]) => {
+            const row = document.createElement('li');
+            row.className = 'report-category';
+            const name = document.createElement('span');
+            name.textContent = `${categoryIcons[category]} ${category}`;
+            const amount = document.createElement('strong');
+            amount.textContent = numberFormat.format(total);
+            row.append(name, amount);
+            categoryList.append(row);
+          });
+        }
+
+        const difference = currentTotal - previousTotal;
+        const comparison = document.querySelector('#report-comparison');
+        comparison.replaceChildren();
+        const heading = document.createElement('h3');
+        heading.className = 'report-subtitle';
+        heading.textContent = 'Сравнение с прошлым месяцем';
+        const values = document.createElement('p');
+        values.textContent = `${numberFormat.format(previousTotal)} → ${numberFormat.format(currentTotal)}`;
+        const change = document.createElement('p');
+        change.className = 'report-change';
+        change.textContent = difference === 0
+          ? 'Без изменений'
+          : `Расходов ${difference > 0 ? 'больше' : 'меньше'} на ${numberFormat.format(Math.abs(difference))}`;
+        comparison.append(heading, values, change);
+      }
       function render() {
         const now = new Date();
         const yearMonth = `${now.getFullYear()}-${pad(now.getMonth() + 1)}`;
         document.querySelector('#month-name').textContent = new Intl.DateTimeFormat('ru-RU', { month: 'long', year: 'numeric' }).format(now);
         const monthlyTotal = expenses.reduce((sum, item) => item.date.startsWith(`${yearMonth}-`) ? sum + Number(item.amount) : sum, 0);
         document.querySelector('#month-total').textContent = numberFormat.format(monthlyTotal);
+        renderMonthlyReport(now);
         renderLimitSummaries();
 
         const sorted = [...expenses].sort((a, b) => b.date.localeCompare(a.date) || b.createdAt - a.createdAt);

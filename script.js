@@ -207,9 +207,10 @@
         const previousTotal = previousExpenses.reduce((sum, item) => sum + Number(item.amount), 0);
         const categoryTotals = Object.fromEntries(Object.keys(categoryIcons).map(category => [category, 0]));
         currentExpenses.forEach(item => { categoryTotals[item.category] += Number(item.amount); });
+        const categoryOrder = Object.keys(categoryIcons);
         const topCategories = Object.entries(categoryTotals)
           .filter(([, total]) => total > 0)
-          .sort((a, b) => b[1] - a[1])
+          .sort((a, b) => b[1] - a[1] || categoryOrder.indexOf(a[0]) - categoryOrder.indexOf(b[0]))
           .slice(0, 3);
 
         document.querySelector('#report-month').textContent = new Intl.DateTimeFormat('ru-RU', { month: 'long', year: 'numeric' }).format(now);
@@ -241,7 +242,9 @@
         heading.className = 'report-subtitle';
         heading.textContent = 'Сравнение с прошлым месяцем';
         const values = document.createElement('p');
-        values.textContent = `${numberFormat.format(previousTotal)} → ${numberFormat.format(currentTotal)}`;
+        const previousMonthName = new Intl.DateTimeFormat('ru-RU', { month: 'long' }).format(previousMonthStart);
+        const currentMonthName = new Intl.DateTimeFormat('ru-RU', { month: 'long' }).format(now);
+        values.textContent = `${previousMonthName}: ${numberFormat.format(previousTotal)} → ${currentMonthName}: ${numberFormat.format(currentTotal)}`;
         const change = document.createElement('p');
         change.className = 'report-change';
         change.textContent = difference === 0

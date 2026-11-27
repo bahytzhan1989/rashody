@@ -47,6 +47,11 @@
     .report-comparison .report-subtitle { margin: 0 0 7px; }
     .report-comparison p { margin: 0; color: #687166; font-size: 12px; line-height: 1.5; font-variant-numeric: tabular-nums; }
     .report-comparison .report-change { margin-top: 3px; color: var(--green); font-weight: 650; }
+    .report-copy { width: 100%; min-height: 44px; margin-top: 14px; padding: 0 14px; border: 1px solid #dce6dc; border-radius: 9px; background: #f7faf6; color: var(--green); font-size: 13px; font-weight: 650; cursor: pointer; }
+    .report-copy:hover { border-color: #bdd0bf; background: var(--green-soft); }
+    .report-copy:focus-visible { outline: 3px solid rgba(50,104,73,.25); outline-offset: 2px; }
+    .report-copy-status { margin: 8px 0 0; color: var(--green); font-size: 12px; }
+    .report-copy-text { min-height: 130px; margin-top: 8px; resize: vertical; font-size: 12px; line-height: 1.5; }
     .card { margin-top: 22px; padding: 25px 27px; border: 1px solid #ecefe9; border-radius: 17px; background: var(--surface); box-shadow: 0 10px 30px rgba(39,48,38,.045); }
     .card-heading { margin-bottom: 21px; }
     h2 { margin: 0; font-size: 17px; letter-spacing: -.35px; }

@@ -12,6 +12,9 @@
       const cancelEditButton = document.querySelector('#cancel-edit');
       const entries = document.querySelector('#entries');
       const limitList = document.querySelector('#limit-list');
+      const reportCopyButton = document.querySelector('#report-copy');
+      const reportCopyStatus = document.querySelector('#report-copy-status');
+      const reportCopyText = document.querySelector('#report-copy-text');
       const numberFormat = new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'KZT', currencyDisplay: 'narrowSymbol', maximumFractionDigits: 0 });
       const pad = value => String(value).padStart(2, '0');
       const localDateValue = (date = new Date()) => `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
@@ -28,6 +31,7 @@
       let editingExpenseId = null;
       let latestCreatedAt = expenses.reduce((latest, item) => Math.max(latest, item.createdAt), 0);
       let limits = loadLimits();
+      let monthlyReportText = '';
 
       function loadLimits() {
         try {
@@ -251,7 +255,35 @@
           ? 'Без изменений'
           : `Расходов ${difference > 0 ? 'больше' : 'меньше'} на ${numberFormat.format(Math.abs(difference))}`;
         comparison.append(heading, values, change);
+        const reportLines = [
+          `Отчёт за ${new Intl.DateTimeFormat('ru-RU', { month: 'long', year: 'numeric' }).format(now)}`,
+          `Итого: ${numberFormat.format(currentTotal)}`,
+          'Самые затратные категории:',
+          ...(topCategories.length ? topCategories.map(([category, total]) => `${category}: ${numberFormat.format(total)}`) : ['Пока нет трат за этот месяц']),
+          'Сравнение с прошлым месяцем:',
+          `${previousMonthName}: ${numberFormat.format(previousTotal)} → ${currentMonthName}: ${numberFormat.format(currentTotal)}`,
+          difference === 0 ? 'Без изменений' : `Расходов ${difference > 0 ? 'больше' : 'меньше'} на ${numberFormat.format(Math.abs(difference))}`
+        ];
+        monthlyReportText = reportLines.join('\n');
+        reportCopyText.value = monthlyReportText;
+        reportCopyStatus.textContent = '';
+        reportCopyText.hidden = true;
       }
+      reportCopyButton.addEventListener('click', async () => {
+        reportCopyText.value = monthlyReportText;
+        reportCopyStatus.textContent = '';
+        try {
+          if (!navigator.clipboard?.writeText) throw new Error('Clipboard unavailable');
+          await navigator.clipboard.writeText(monthlyReportText);
+          reportCopyStatus.textContent = 'Отчёт скопирован.';
+          reportCopyText.hidden = true;
+        } catch {
+          reportCopyStatus.textContent = 'Не удалось скопировать автоматически. Выделите текст ниже и скопируйте его вручную.';
+          reportCopyText.hidden = false;
+          reportCopyText.focus();
+          reportCopyText.select();
+        }
+      });
       function render() {
         const now = new Date();
         const yearMonth = `${now.getFullYear()}-${pad(now.getMonth() + 1)}`;
